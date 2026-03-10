@@ -1,10 +1,6 @@
-import express from 'express';
-import { authRoutes } from './routes/authRoutes';
+import app from './app'
 
-const app = express();
-
-app.use(express.json());
-
-app.use('/', authRoutes)
-
-app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+const port = process.env.PORT || 3000
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`)
+})
