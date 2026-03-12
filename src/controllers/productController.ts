@@ -47,3 +47,39 @@ export const getProducts = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao buscar produtos" })
     }
 }
+
+export const updateProduct = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const { name, price } = req.body
+        const companyId = req.user?.companyId
+        
+        if(!companyId){
+            return res.status(403).json({ message: "Usuário não pertence a uma empresa"})
+        }
+
+        const product = await prisma.product.findFirst({
+            where: {
+                id: id as string,
+                companyId
+            }
+        })
+
+        if (!product){
+            return res.status(404).json({ message: "Produto não encontrado ou não pertence à sua empresa" })
+        }
+
+        const updatedProduct = await prisma.product.update({
+            where: { id: id as string },
+            data: {
+                name,
+                price
+            }
+        })
+        return res.status(200).json(updatedProduct)
+    }
+    catch(err){
+        console.error(err)
+        return res.status(500).json({ message: "Erro ao atualizar produto" })
+    }
+}
