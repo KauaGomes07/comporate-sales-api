@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import { secretKey } from '../utils/jwt';
+import { TokenPayload } from '../types/token';
 
 export function authMiddleware( req: Request, res: Response, next: NextFunction){
     const authHeader = req.headers.authorization
@@ -14,7 +15,7 @@ export function authMiddleware( req: Request, res: Response, next: NextFunction)
     const token = authHeader?.replace("Bearer ", "")
 
     try {
-        const decoded = jwt.verify(token, secretKey!) as JwtPayload
+        const decoded = jwt.verify(token, secretKey!) as TokenPayload
 
         req.user = {
             id: decoded.id,
