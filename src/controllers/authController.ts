@@ -12,8 +12,8 @@ export const register = async (req: Request, res: Response) => {
     }
 
     try {
-        const existe = await prisma.user.findUnique({ where: { email } })
-        if (existe) {
+        const hasUser = await prisma.user.findUnique({ where: { email } })
+        if (hasUser) {
             return res.status(409).json({ error: "Usuário com este email já existe." })
         }
 
@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ error: "Dados inválidos, tente novamente!"})
         }
         //Aqui cria o token JWT
-        const token = jwt.sign({ userId: user.id }, secretKey!, { expiresIn: "1h" })
+        const token = jwt.sign({ userId: user.id, companyId: user.companyId }, secretKey!, { expiresIn: "1h" })
         return res.json({ token })
     }
     catch (err) {
