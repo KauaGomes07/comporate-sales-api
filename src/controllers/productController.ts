@@ -83,3 +83,41 @@ export const updateProduct = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao atualizar produto" })
     }
 }
+
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const companyId = req.user?.companyId
+
+    if (!companyId) {
+      return res.status(403).json({
+        message: "Usuário não pertence a uma empresa"
+      })
+    }
+    //Procura o produto pelo id
+    const product = await prisma.product.findFirst({
+      where: {
+        id: id as string,
+        companyId
+      }
+    })
+    //Verifica se existe
+    if (!product) {
+      return res.status(404).json({
+        message: "Produto não encontrado ou não pertence à sua empresa"
+      })
+    }
+
+    await prisma.product.delete({
+      where: { id: id as string }
+    })
+
+    return res.status(204).json({ message: "Produto excluído com sucesso!"})
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({
+      message: "Erro ao deletar produto"
+    })
+  }
+}
