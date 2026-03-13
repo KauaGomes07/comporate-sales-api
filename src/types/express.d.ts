@@ -7,5 +7,6 @@ declare namespace Express {
       id: string
       companyId?: string
     }
+    product?: Product
   }
 }

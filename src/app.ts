@@ -11,6 +11,6 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/auth', authRoutes)
-app.use("/product", productRoutes)
+app.use("/products", productRoutes)
 
 export default app

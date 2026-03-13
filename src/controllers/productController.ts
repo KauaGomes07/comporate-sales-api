@@ -49,70 +49,44 @@ export const getProducts = async (req: Request, res: Response) => {
 }
 
 export const updateProduct = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const { name, price } = req.body
-        const companyId = req.user?.companyId
-        
-        if(!companyId){
-            return res.status(403).json({ message: "Usuário não pertence a uma empresa"})
-        }
+  try {
+    const { name, price } = req.body
+    const product = req.product! // já validado no middleware
 
-        const product = await prisma.product.findFirst({
-            where: {
-                id: id as string,
-                companyId
-            }
-        })
-
-        if (!product){
-            return res.status(404).json({ message: "Produto não encontrado ou não pertence à sua empresa" })
-        }
-
-        const updatedProduct = await prisma.product.update({
-            where: { id: id as string },
-            data: {
-                name,
-                price
-            }
-        })
-        return res.status(200).json(updatedProduct)
+    if (!name && price === undefined) {
+      return res.status(400).json({
+        message: "Informe ao menos um campo para atualizar"
+      })
     }
-    catch(err){
-        console.error(err)
-        return res.status(500).json({ message: "Erro ao atualizar produto" })
-    }
+
+    const updatedProduct = await prisma.product.update({
+      where: { id: product.id },
+      data: {
+        //Aqui fiz um spread operator para fazer essa verificação
+        ...(name !== undefined && { name }),
+        ...(price !== undefined && { price })
+      }
+    })
+
+    return res.status(200).json(updatedProduct)
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({
+      message: "Erro ao atualizar produto"
+    })
+  }
 }
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
-    const companyId = req.user?.companyId
-
-    if (!companyId) {
-      return res.status(403).json({
-        message: "Usuário não pertence a uma empresa"
-      })
-    }
-    //Procura o produto pelo id
-    const product = await prisma.product.findFirst({
-      where: {
-        id: id as string,
-        companyId
-      }
-    })
-    //Verifica se existe
-    if (!product) {
-      return res.status(404).json({
-        message: "Produto não encontrado ou não pertence à sua empresa"
-      })
-    }
+    const product = req.product! // já validado no middleware
 
     await prisma.product.delete({
-      where: { id: id as string }
+      where: { id: product.id }
     })
 
-    return res.status(204).json({ message: "Produto excluído com sucesso!"})
+    return res.status(204).send()
 
   } catch (err) {
     console.error(err)
