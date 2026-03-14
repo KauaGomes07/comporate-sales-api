@@ -86,7 +86,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
       where: { id: product.id }
     })
 
-    return res.status(204).send()
+    return res.status(204).json({ message: "Produto deletado com sucesso" })
 
   } catch (err) {
     console.error(err)

@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response) => {
         // Removo a senha para não retornar no response
         const { password: _, ...userWithoutPassword } = user
 
-        return res.status(201).json({ message: "Usuário criado com sucesso!", userWithoutPassword })
+        return res.status(201).json(userWithoutPassword)
     }
     catch (err) {
         console.error('Register error:', err)
