@@ -62,3 +62,31 @@ export const getMyCompany = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao buscar empresa" })
     }
 }
+
+export const updateCompany = async (req: Request, res: Response) => {
+    try {
+        const companyId = req.user?.companyId
+        const { name } = req.body
+
+        if (!name){
+            return res.status(400).json({ message: "Campo obrigatório" })
+        }
+        if (!companyId){
+            return res.status(403).json({ message: "Usuário não pertence a uma empresa" })
+        }
+
+        const company = await prisma.company.update({
+            where: { id: companyId },
+            data: {
+                name
+            }
+        })
+
+        return res.json(company)
+    }
+    catch(err){
+        console.error(err)
+        return res.status(500).json({ message: "Erro ao atualizar empresa" })
+    }
+}
+
