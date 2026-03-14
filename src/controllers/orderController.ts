@@ -76,3 +76,31 @@ export const createOrder = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao criar pedido" })
     }
 }
+
+export const getMyOrders = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.id
+
+        if (!userId){
+            return res.status(401).json({ message: "Usuário não autenticado" })
+        }
+
+        const orders = await prisma.order.findMany({
+            where: {
+                userId
+            },
+            include: {
+                items: {
+                    include: {
+                        product: true
+                    }
+                }
+            }
+        })
+        return res.json(orders)
+    }
+    catch(err){
+        console.error(err)
+        return res.status(500).json({ message: "Erro ao buscar pedidos"})
+    }
+}
