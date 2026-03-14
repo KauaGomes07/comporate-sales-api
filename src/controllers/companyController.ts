@@ -5,7 +5,7 @@ export const createCompany = async (req: Request, res: Response) => {
     try {
         const { name } = req.body
         const userId = req.user?.id
-        
+
         //Verifica se o usuário já tem uma empresa
         if (req.user?.companyId){
             return res.status(400).json({ message: "Usuário já pertence a uma empresa" })
@@ -64,6 +64,29 @@ export const getMyCompany = async (req: Request, res: Response) => {
     catch (err) {
         console.error(err)
         return res.status(500).json({ message: "Erro ao buscar empresa" })
+    }
+}
+
+export const getCompanyProducts = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+
+        const company = await prisma.company.findUnique({
+            where: { id: id as string },
+            include: {
+                products: true
+            }
+        })
+
+        if (!company){
+            return res.status(404).json({ message: "Empresa não encontrada" })
+        }
+
+        return res.status(200).json(company.products)
+    }
+    catch(err){
+        console.error(err)
+        return res.status(500).json({ message: "Erro ao buscar produtos da empresa" })
     }
 }
 
