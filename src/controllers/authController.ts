@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ error: "Dados inválidos, tente novamente!"})
         }
         //Aqui cria o token JWT
-        const token = jwt.sign({ userId: user.id, companyId: user.companyId }, secretKey!, { expiresIn: "1h" })
+        const token = jwt.sign({ id: user.id, companyId: user.companyId }, secretKey!, { expiresIn: "1h" })
         return res.json({ token })
     }
     catch (err) {
