@@ -5,7 +5,11 @@ export const createCompany = async (req: Request, res: Response) => {
     try {
         const { name } = req.body
         const userId = req.user?.id
-
+        
+        //Verifica se o usuário já tem uma empresa
+        if (req.user?.companyId){
+            return res.status(400).json({ message: "Usuário já pertence a uma empresa" })
+        }
         //Verifico se foi passado o nome da empresa
         if (!name){
             return res.status(400).json({ message: "Nome da empresa é obrigatório" })
