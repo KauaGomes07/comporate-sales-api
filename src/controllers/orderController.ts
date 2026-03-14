@@ -104,3 +104,39 @@ export const getMyOrders = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao buscar pedidos"})
     }
 }
+
+export const getOrderById = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const userId = req.user?.id
+
+        if (!userId){
+            return res.status(401).json({ message: "Usuário não autenticado" })
+        }
+        
+        const order = await prisma.order.findFirst({
+            where: { id: id as string },
+            include: {
+                items: {
+                    include: {
+                        product:true
+                    }
+                }
+            }
+        })
+
+        if (!order){
+            return res.status(404).json({ message: "Pedido não encontrado" })
+        }
+
+        if (order.userId !== userId){
+            return res.status(403).json({ message: "Você não tem acesso a este pedido" })
+        }
+
+        return res.json(order)
+    }
+    catch(err){
+        console.error(err)
+        return res.status(500).json({ message: "Erro ao buscar pedido" })
+    }
+}
