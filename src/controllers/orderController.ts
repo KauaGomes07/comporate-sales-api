@@ -29,14 +29,26 @@ export const createOrder = async (req: Request, res: Response) => {
                 price: number
             }[] = []
 
+            // Pega todos os ids dos produtos
+            const productIds = items.map(item => item.productId)
+
+            //Busca todos os produtos de uma só vez
+            const products = await tx.product.findMany({
+                where: {
+                id: { in: productIds }
+                }
+            })
+            // Cria um mapa para acesso rápido
+            const productMap = new Map(
+                products.map(product => [product.id, product])
+            )
+            
             for (const item of items) {
 
-                const product = await tx.product.findUnique({
-                    where: { id: item.productId }
-                })
+                const product = productMap.get(item.productId)
 
                 if (!product) {
-                    throw new Error(`Produto ${item.productId} não encontrado`)
+                    return res.status(404).json({ message: "Produto não encontrado" })
                 }
 
                 const subtotal = product.price * item.quantity
